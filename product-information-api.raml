@@ -1,0 +1,1033 @@
+#%RAML 1.0
+title: Product Information API
+version: v1
+baseUri: https://api.wilmar.com/{version}
+mediaType: application/json
+description: |
+  Comprehensive API for managing and retrieving product information including details, 
+  pricing, inventory status, categories, and specifications.
+
+protocols: [HTTPS]
+
+securitySchemes:
+  OAuth2:
+    type: OAuth 2.0
+    description: OAuth 2.0 authentication for secure API access
+    settings:
+      authorizationUri: https://auth.wilmar.com/oauth2/authorize
+      accessTokenUri: https://auth.wilmar.com/oauth2/token
+      authorizationGrants: [authorization_code, client_credentials]
+      scopes:
+        - "product:read"
+        - "product:write"
+        - "inventory:read"
+        - "pricing:read"
+
+securedBy: [OAuth2]
+
+types:
+  Product:
+    type: object
+    properties:
+      id:
+        type: string
+        pattern: ^[A-Z0-9]{6,12}$
+        description: Unique product identifier
+        example: "PROD123456"
+      name:
+        type: string
+        minLength: 2
+        maxLength: 255
+        description: Product name
+        example: "Premium Cooking Oil"
+      description:
+        type: string
+        maxLength: 1000
+        description: Detailed product description
+        example: "High-quality sunflower oil perfect for cooking and frying"
+      brand:
+        type: string
+        maxLength: 100
+        description: Product brand
+        example: "Wilmar Premium"
+      category:
+        type: Category
+        description: Product category information
+      sku:
+        type: string
+        pattern: ^[A-Z0-9\-]{8,20}$
+        description: Stock Keeping Unit
+        example: "WIL-OIL-001"
+      upc?:
+        type: string
+        pattern: ^\d{12}$
+        description: Universal Product Code
+        example: "123456789012"
+      price:
+        type: Price
+        description: Product pricing information
+      inventory:
+        type: Inventory
+        description: Inventory and availability information
+      specifications:
+        type: Specification[]
+        description: Product specifications and attributes
+      images:
+        type: Image[]
+        description: Product images
+      status:
+        type: string
+        enum: [active, inactive, discontinued, out_of_stock]
+        description: Product status
+        example: "active"
+      tags?:
+        type: string[]
+        description: Product tags for search and categorization
+        example: ["organic", "non-gmo", "premium"]
+      manufacturer:
+        type: Manufacturer
+        description: Product manufacturer information
+      dimensions?:
+        type: Dimensions
+        description: Product dimensions and weight
+      certifications?:
+        type: Certification[]
+        description: Product certifications
+      createdAt:
+        type: datetime
+        description: Product creation timestamp
+        example: "2024-01-15T10:30:00Z"
+      updatedAt:
+        type: datetime
+        description: Last update timestamp
+        example: "2024-11-18T14:22:00Z"
+      
+  Category:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Category ID
+        example: "CAT001"
+      name:
+        type: string
+        description: Category name
+        example: "Edible Oils"
+      parentId?:
+        type: string
+        description: Parent category ID for hierarchical structure
+        example: "FOOD"
+      level:
+        type: integer
+        minimum: 1
+        maximum: 5
+        description: Category hierarchy level
+        example: 2
+      path:
+        type: string
+        description: Full category path
+        example: "/food/oils/cooking-oils"
+
+  Price:
+    type: object
+    properties:
+      currency:
+        type: string
+        pattern: ^[A-Z]{3}$
+        description: Currency code (ISO 4217)
+        example: "USD"
+      amount:
+        type: number
+        multipleOf: 0.01
+        minimum: 0
+        description: Price amount
+        example: 12.99
+      listPrice?:
+        type: number
+        multipleOf: 0.01
+        minimum: 0
+        description: Original list price
+        example: 15.99
+      discountPercentage?:
+        type: number
+        minimum: 0
+        maximum: 100
+        description: Discount percentage
+        example: 18.76
+      priceValidFrom?:
+        type: datetime
+        description: Price validity start date
+        example: "2024-01-01T00:00:00Z"
+      priceValidTo?:
+        type: datetime
+        description: Price validity end date
+        example: "2024-12-31T23:59:59Z"
+
+  Inventory:
+    type: object
+    properties:
+      totalStock:
+        type: integer
+        minimum: 0
+        description: Total stock quantity
+        example: 1500
+      availableStock:
+        type: integer
+        minimum: 0
+        description: Available stock for sale
+        example: 1200
+      reservedStock:
+        type: integer
+        minimum: 0
+        description: Reserved stock quantity
+        example: 300
+      inTransitStock?:
+        type: integer
+        minimum: 0
+        description: Stock in transit
+        example: 500
+      reorderLevel:
+        type: integer
+        minimum: 0
+        description: Reorder level threshold
+        example: 100
+      maxStock:
+        type: integer
+        minimum: 0
+        description: Maximum stock capacity
+        example: 5000
+      stockStatus:
+        type: string
+        enum: [in_stock, low_stock, out_of_stock, backorder]
+        description: Current stock status
+        example: "in_stock"
+      lastUpdated:
+        type: datetime
+        description: Last inventory update
+        example: "2024-11-18T14:00:00Z"
+      warehouses:
+        type: WarehouseStock[]
+        description: Stock distribution across warehouses
+
+  WarehouseStock:
+    type: object
+    properties:
+      warehouseId:
+        type: string
+        description: Warehouse identifier
+        example: "WH001"
+      warehouseName:
+        type: string
+        description: Warehouse name
+        example: "Main Distribution Center"
+      location:
+        type: string
+        description: Warehouse location
+        example: "Singapore"
+      stock:
+        type: integer
+        minimum: 0
+        description: Stock quantity at warehouse
+        example: 800
+
+  Specification:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Specification name
+        example: "Volume"
+      value:
+        type: string
+        description: Specification value
+        example: "1L"
+      unit?:
+        type: string
+        description: Unit of measurement
+        example: "liters"
+      type:
+        type: string
+        enum: [text, number, boolean, date]
+        description: Specification value type
+        example: "text"
+
+  Image:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Image ID
+        example: "IMG001"
+      url:
+        type: string
+        description: Image URL
+        example: "https://cdn.wilmar.com/products/prod123456/main.jpg"
+      altText:
+        type: string
+        description: Alt text for accessibility
+        example: "Premium Cooking Oil 1L bottle"
+      type:
+        type: string
+        enum: [main, gallery, thumbnail, detail]
+        description: Image type
+        example: "main"
+      order:
+        type: integer
+        minimum: 1
+        description: Display order
+        example: 1
+      size:
+        type: string
+        enum: [small, medium, large, original]
+        description: Image size variant
+        example: "large"
+
+  Manufacturer:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Manufacturer ID
+        example: "MAN001"
+      name:
+        type: string
+        description: Manufacturer name
+        example: "Wilmar International"
+      country:
+        type: string
+        description: Country of origin
+        example: "Singapore"
+      contactInfo?:
+        type: object
+        properties:
+          email:
+            type: string
+            description: Contact email address
+            example: "contact@wilmar.com"
+          phone:
+            type: string
+            example: "+65-6216-0244"
+          website:
+            type: string
+            description: Manufacturer website URL
+            example: "https://www.wilmar-international.com"
+
+  Dimensions:
+    type: object
+    properties:
+      length:
+        type: number
+        minimum: 0
+        description: Length in cm
+        example: 10.5
+      width:
+        type: number
+        minimum: 0
+        description: Width in cm
+        example: 8.2
+      height:
+        type: number
+        minimum: 0
+        description: Height in cm
+        example: 25.4
+      weight:
+        type: number
+        minimum: 0
+        description: Weight in grams
+        example: 1050
+      volume?:
+        type: number
+        minimum: 0
+        description: Volume in ml
+        example: 1000
+
+  Certification:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Certification ID
+        example: "CERT001"
+      name:
+        type: string
+        description: Certification name
+        example: "Organic Certification"
+      authority:
+        type: string
+        description: Certifying authority
+        example: "USDA Organic"
+      certificateNumber:
+        type: string
+        description: Certificate number
+        example: "ORG-2024-001"
+      validFrom:
+        type: date-only
+        description: Certificate validity start date
+        example: "2024-01-01"
+      validTo:
+        type: date-only
+        description: Certificate validity end date
+        example: "2025-01-01"
+      documentUrl?:
+        type: string
+        description: Certificate document URL
+        example: "https://certs.wilmar.com/cert001.pdf"
+
+  ProductSummary:
+    type: object
+    description: Simplified product information for list views
+    properties:
+      id:
+        type: string
+        description: Product ID
+        example: "PROD123456"
+      name:
+        type: string
+        description: Product name
+        example: "Premium Cooking Oil"
+      brand:
+        type: string
+        description: Product brand
+        example: "Wilmar Premium"
+      sku:
+        type: string
+        description: Stock Keeping Unit
+        example: "WIL-OIL-001"
+      category:
+        type: object
+        properties:
+          id: string
+          name: string
+      price:
+        type: Price
+      stockStatus:
+        type: string
+        enum: [in_stock, low_stock, out_of_stock, backorder]
+      mainImage?:
+        type: string
+        description: Main product image URL
+        example: "https://cdn.wilmar.com/products/prod123456/thumb.jpg"
+      status:
+        type: string
+        enum: [active, inactive, discontinued, out_of_stock]
+
+  ErrorResponse:
+    type: object
+    properties:
+      error:
+        type: object
+        properties:
+          code:
+            type: string
+            description: Error code
+            example: "PRODUCT_NOT_FOUND"
+          message:
+            type: string
+            description: Error message
+            example: "Product with ID PROD123456 not found"
+          timestamp:
+            type: datetime
+            description: Error timestamp
+            example: "2024-11-18T14:30:00Z"
+          traceId:
+            type: string
+            description: Request trace ID for debugging
+            example: "trace-12345"
+
+  PaginationInfo:
+    type: object
+    properties:
+      page:
+        type: integer
+        minimum: 1
+        description: Current page number
+        example: 1
+      size:
+        type: integer
+        minimum: 1
+        maximum: 100
+        description: Page size
+        example: 20
+      totalElements:
+        type: integer
+        minimum: 0
+        description: Total number of elements
+        example: 150
+      totalPages:
+        type: integer
+        minimum: 0
+        description: Total number of pages
+        example: 8
+      hasNext:
+        type: boolean
+        description: Whether there are more pages
+        example: true
+      hasPrevious:
+        type: boolean
+        description: Whether there are previous pages
+        example: false
+
+traits:
+  pageable:
+    queryParameters:
+      page?:
+        type: integer
+        minimum: 1
+        default: 1
+        description: Page number
+        example: 1
+      size?:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        description: Number of items per page
+        example: 20
+      sort?:
+        type: string
+        description: Sort field and order (field:asc/desc)
+        example: "name:asc"
+
+  searchable:
+    queryParameters:
+      q?:
+        type: string
+        minLength: 2
+        maxLength: 255
+        description: Search query
+        example: "cooking oil"
+      category?:
+        type: string
+        description: Filter by category ID
+        example: "CAT001"
+      brand?:
+        type: string
+        description: Filter by brand
+        example: "Wilmar Premium"
+      status?:
+        type: string
+        enum: [active, inactive, discontinued, out_of_stock]
+        description: Filter by product status
+        example: "active"
+      stockStatus?:
+        type: string
+        enum: [in_stock, low_stock, out_of_stock, backorder]
+        description: Filter by stock status
+        example: "in_stock"
+      priceMin?:
+        type: number
+        minimum: 0
+        description: Minimum price filter
+        example: 10.00
+      priceMax?:
+        type: number
+        minimum: 0
+        description: Maximum price filter
+        example: 50.00
+      tags?:
+        type: string
+        description: Filter by tags (comma-separated)
+        example: "organic,premium"
+
+/products:
+  displayName: Products
+  description: Product information management endpoints
+  
+  get:
+    displayName: Get Products
+    description: |
+      Retrieve a paginated list of products with optional filtering and search capabilities.
+      Supports various filters including category, brand, status, price range, and text search.
+    is: [pageable, searchable]
+    securedBy: [OAuth2: {scopes: ["product:read"]}]
+    responses:
+      200:
+        body:
+          application/json:
+            type: object
+            properties:
+              products:
+                type: ProductSummary[]
+                description: Array of product summaries
+              pagination:
+                type: PaginationInfo
+                description: Pagination information
+            example:
+              products:
+                - id: "PROD123456"
+                  name: "Premium Cooking Oil"
+                  brand: "Wilmar Premium"
+                  sku: "WIL-OIL-001"
+                  category:
+                    id: "CAT001"
+                    name: "Edible Oils"
+                  price:
+                    currency: "USD"
+                    amount: 12.99
+                    priceValidFrom: "2024-01-01T00:00:00Z"
+                  stockStatus: "in_stock"
+                  mainImage: "https://cdn.wilmar.com/products/prod123456/thumb.jpg"
+                  status: "active"
+                - id: "PROD789012"
+                  name: "Organic Coconut Oil"
+                  brand: "Wilmar Organic"
+                  sku: "WIL-ORG-002"
+                  category:
+                    id: "CAT001"
+                    name: "Edible Oils"
+                  price:
+                    currency: "USD"
+                    amount: 18.99
+                    priceValidFrom: "2024-01-01T00:00:00Z"
+                  stockStatus: "low_stock"
+                  mainImage: "https://cdn.wilmar.com/products/prod789012/thumb.jpg"
+                  status: "active"
+              pagination:
+                page: 1
+                size: 20
+                totalElements: 150
+                totalPages: 8
+                hasNext: true
+                hasPrevious: false
+      400:
+        body:
+          application/json:
+            type: ErrorResponse
+            example:
+              error:
+                code: "INVALID_PARAMETERS"
+                message: "Invalid query parameters provided"
+                timestamp: "2024-11-18T14:30:00Z"
+                traceId: "trace-12345"
+      401:
+        body:
+          application/json:
+            type: ErrorResponse
+            example:
+              error:
+                code: "UNAUTHORIZED"
+                message: "Invalid or missing authentication token"
+                timestamp: "2024-11-18T14:30:00Z"
+                traceId: "trace-12345"
+      403:
+        body:
+          application/json:
+            type: ErrorResponse
+            example:
+              error:
+                code: "FORBIDDEN"
+                message: "Insufficient permissions to access products"
+                timestamp: "2024-11-18T14:30:00Z"
+                traceId: "trace-12345"
+      500:
+        body:
+          application/json:
+            type: ErrorResponse
+            example:
+              error:
+                code: "INTERNAL_SERVER_ERROR"
+                message: "An internal server error occurred"
+                timestamp: "2024-11-18T14:30:00Z"
+                traceId: "trace-12345"
+
+  /{productId}:
+    displayName: Product Details
+    uriParameters:
+      productId:
+        type: string
+        pattern: ^[A-Z0-9]{6,12}$
+        description: Unique product identifier
+        example: "PROD123456"
+    
+    get:
+      displayName: Get Product by ID
+      description: |
+        Retrieve detailed information for a specific product including all specifications,
+        pricing, inventory, images, and certifications.
+      securedBy: [OAuth2: {scopes: ["product:read"]}]
+      queryParameters:
+        includeInventory?:
+          type: boolean
+          default: true
+          description: Include inventory information
+        includeImages?:
+          type: boolean
+          default: true
+          description: Include product images
+        includeSpecs?:
+          type: boolean
+          default: true
+          description: Include product specifications
+      responses:
+        200:
+          body:
+            application/json:
+              type: Product
+              example:
+                id: "PROD123456"
+                name: "Premium Cooking Oil"
+                description: "High-quality sunflower oil perfect for cooking and frying"
+                brand: "Wilmar Premium"
+                category:
+                  id: "CAT001"
+                  name: "Edible Oils"
+                  parentId: "FOOD"
+                  level: 2
+                  path: "/food/oils/cooking-oils"
+                sku: "WIL-OIL-001"
+                upc: "123456789012"
+                price:
+                  currency: "USD"
+                  amount: 12.99
+                  listPrice: 15.99
+                  discountPercentage: 18.76
+                  priceValidFrom: "2024-01-01T00:00:00Z"
+                inventory:
+                  totalStock: 1500
+                  availableStock: 1200
+                  reservedStock: 300
+                  reorderLevel: 100
+                  maxStock: 5000
+                  stockStatus: "in_stock"
+                  lastUpdated: "2024-11-18T14:00:00Z"
+                  warehouses:
+                    - warehouseId: "WH001"
+                      warehouseName: "Main Distribution Center"
+                      location: "Singapore"
+                      stock: 800
+                specifications:
+                  - name: "Volume"
+                    value: "1L"
+                    unit: "liters"
+                    type: "text"
+                  - name: "Fat Content"
+                    value: "100"
+                    unit: "percentage"
+                    type: "number"
+                images:
+                  - id: "IMG001"
+                    url: "https://cdn.wilmar.com/products/prod123456/main.jpg"
+                    altText: "Premium Cooking Oil 1L bottle"
+                    type: "main"
+                    order: 1
+                    size: "large"
+                status: "active"
+                tags: ["premium", "sunflower", "cooking"]
+                manufacturer:
+                  id: "MAN001"
+                  name: "Wilmar International"
+                  country: "Singapore"
+                  contactInfo:
+                    email: "contact@wilmar.com"
+                    phone: "+65-6216-0244"
+                    website: "https://www.wilmar-international.com"
+                dimensions:
+                  length: 10.5
+                  width: 8.2
+                  height: 25.4
+                  weight: 1050
+                  volume: 1000
+                certifications:
+                  - id: "CERT001"
+                    name: "Organic Certification"
+                    authority: "USDA Organic"
+                    certificateNumber: "ORG-2024-001"
+                    validFrom: "2024-01-01"
+                    validTo: "2025-01-01"
+                createdAt: "2024-01-15T10:30:00Z"
+                updatedAt: "2024-11-18T14:22:00Z"
+        404:
+          body:
+            application/json:
+              type: ErrorResponse
+              example:
+                error:
+                  code: "PRODUCT_NOT_FOUND"
+                  message: "Product with ID PROD123456 not found"
+                  timestamp: "2024-11-18T14:30:00Z"
+                  traceId: "trace-12345"
+        401:
+          body:
+            application/json:
+              type: ErrorResponse
+        403:
+          body:
+            application/json:
+              type: ErrorResponse
+        500:
+          body:
+            application/json:
+              type: ErrorResponse
+
+    /inventory:
+      displayName: Product Inventory
+      get:
+        displayName: Get Product Inventory
+        description: |
+          Retrieve detailed inventory information for a specific product including
+          stock levels across all warehouses and distribution centers.
+        securedBy: [OAuth2: {scopes: ["inventory:read"]}]
+        responses:
+          200:
+            body:
+              application/json:
+                type: object
+                properties:
+                  productId:
+                    type: string
+                    example: "PROD123456"
+                  inventory:
+                    type: Inventory
+                example:
+                  productId: "PROD123456"
+                  inventory:
+                    totalStock: 1500
+                    availableStock: 1200
+                    reservedStock: 300
+                    inTransitStock: 500
+                    reorderLevel: 100
+                    maxStock: 5000
+                    stockStatus: "in_stock"
+                    lastUpdated: "2024-11-18T14:00:00Z"
+                    warehouses:
+                      - warehouseId: "WH001"
+                        warehouseName: "Main Distribution Center"
+                        location: "Singapore"
+                        stock: 800
+                      - warehouseId: "WH002"
+                        warehouseName: "Regional Warehouse"
+                        location: "Malaysia"
+                        stock: 400
+          404:
+            body:
+              application/json:
+                type: ErrorResponse
+          401:
+            body:
+              application/json:
+                type: ErrorResponse
+          403:
+            body:
+              application/json:
+                type: ErrorResponse
+
+    /pricing:
+      displayName: Product Pricing
+      get:
+        displayName: Get Product Pricing
+        description: |
+          Retrieve current pricing information for a specific product including
+          any active discounts, promotional pricing, and historical price data.
+        securedBy: [OAuth2: {scopes: ["pricing:read"]}]
+        queryParameters:
+          includePriceHistory?:
+            type: boolean
+            default: false
+            description: Include historical pricing data
+          currency?:
+            type: string
+            pattern: ^[A-Z]{3}$
+            description: Currency code for price conversion
+            example: "EUR"
+        responses:
+          200:
+            body:
+              application/json:
+                type: object
+                properties:
+                  productId:
+                    type: string
+                    example: "PROD123456"
+                  currentPrice:
+                    type: Price
+                  priceHistory?:
+                    type: Price[]
+                    description: Historical pricing data (if requested)
+                example:
+                  productId: "PROD123456"
+                  currentPrice:
+                    currency: "USD"
+                    amount: 12.99
+                    listPrice: 15.99
+                    discountPercentage: 18.76
+                    priceValidFrom: "2024-01-01T00:00:00Z"
+                    priceValidTo: "2024-12-31T23:59:59Z"
+          404:
+            body:
+              application/json:
+                type: ErrorResponse
+
+/categories:
+  displayName: Product Categories
+  description: Product category management endpoints
+  
+  get:
+    displayName: Get Categories
+    description: |
+      Retrieve a hierarchical list of product categories with optional filtering
+      and support for parent-child relationships.
+    securedBy: [OAuth2: {scopes: ["product:read"]}]
+    queryParameters:
+      parentId?:
+        type: string
+        description: Filter categories by parent ID
+        example: "FOOD"
+      level?:
+        type: integer
+        minimum: 1
+        maximum: 5
+        description: Filter categories by hierarchy level
+        example: 2
+      includeProducts?:
+        type: boolean
+        default: false
+        description: Include product count for each category
+    responses:
+      200:
+        body:
+          application/json:
+            type: object
+            properties:
+              categories:
+                type: Category[]
+            example:
+              categories:
+                - id: "FOOD"
+                  name: "Food & Beverages"
+                  level: 1
+                  path: "/food"
+                - id: "CAT001"
+                  name: "Edible Oils"
+                  parentId: "FOOD"
+                  level: 2
+                  path: "/food/oils"
+                - id: "CAT002"
+                  name: "Cooking Oils"
+                  parentId: "CAT001"
+                  level: 3
+                  path: "/food/oils/cooking-oils"
+
+/search:
+  displayName: Product Search
+  description: Advanced product search and filtering endpoints
+  
+  get:
+    displayName: Search Products
+    description: |
+      Perform advanced search across product catalog with full-text search,
+      faceted filtering, and relevance scoring.
+    is: [pageable]
+    securedBy: [OAuth2: {scopes: ["product:read"]}]
+    queryParameters:
+      q:
+        type: string
+        minLength: 2
+        maxLength: 255
+        description: Search query (required)
+        example: "organic cooking oil"
+      facets?:
+        type: string
+        description: Comma-separated list of facets to include
+        example: "brand,category,price_range"
+      filters?:
+        type: string
+        description: JSON string of filters to apply
+        example: '{"brand":["Wilmar Premium"],"category":["CAT001"]}'
+    responses:
+      200:
+        body:
+          application/json:
+            type: object
+            properties:
+              products:
+                type: ProductSummary[]
+              facets:
+                type: object
+                description: Available facets for filtering
+              pagination:
+                type: PaginationInfo
+              searchMeta:
+                type: object
+                properties:
+                  query: string
+                  totalResults: integer
+                  searchTime: number
+            example:
+              products:
+                - id: "PROD123456"
+                  name: "Premium Cooking Oil"
+                  brand: "Wilmar Premium"
+                  sku: "WIL-OIL-001"
+                  category:
+                    id: "CAT001"
+                    name: "Edible Oils"
+                  price:
+                    currency: "USD"
+                    amount: 12.99
+                    priceValidFrom: "2024-01-01T00:00:00Z"
+                  stockStatus: "in_stock"
+                  status: "active"
+              facets:
+                brand:
+                  - name: "Wilmar Premium"
+                    count: 25
+                  - name: "Wilmar Organic"
+                    count: 12
+                category:
+                  - name: "Edible Oils"
+                    count: 35
+                  - name: "Beverages"
+                    count: 15
+              pagination:
+                page: 1
+                size: 20
+                totalElements: 50
+                totalPages: 3
+                hasNext: true
+                hasPrevious: false
+              searchMeta:
+                query: "organic cooking oil"
+                totalResults: 50
+                searchTime: 0.125
+
+/health:
+  displayName: Health Check
+  description: API health and status endpoint
+  
+  get:
+    displayName: Health Check
+    description: Check API health and dependencies status
+    securedBy: null
+    responses:
+      200:
+        body:
+          application/json:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [healthy, degraded, unhealthy]
+              timestamp:
+                type: datetime
+              version:
+                type: string
+              dependencies:
+                type: object
+                properties:
+                  database:
+                    type: string
+                    enum: [healthy, unhealthy]
+                  cache:
+                    type: string
+                    enum: [healthy, unhealthy]
+                  searchEngine:
+                    type: string
+                    enum: [healthy, unhealthy]
+            example:
+              status: "healthy"
+              timestamp: "2024-11-18T14:30:00Z"
+              version: "1.0.0"
+              dependencies:
+                database: "healthy"
+                cache: "healthy"
+                searchEngine: "healthy"
