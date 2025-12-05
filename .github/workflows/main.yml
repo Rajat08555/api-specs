@@ -17,7 +17,7 @@ jobs:
           server_address: smtp-relay.brevo.com
           server_port: 587
           username: "9d698c001@smtp-brevo.com"
-          password: "Nike@2015"
+          password: "xsmtpsib-01f61cdc117f64a6e11b022ca560695c678ed7079e29b1da707d9ce5cdc729fd-nlAr0MDqVg3xlZ1X"
           subject: "Manual approval required for deployment"
           to: "rk173346@gmail.com"
           from: "rajat.guptadhn@gmail.com"
