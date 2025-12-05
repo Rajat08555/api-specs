@@ -16,8 +16,8 @@ jobs:
         with:
           server_address: smtp-relay.brevo.com
           server_port: 587
-          username: "9d698c001@smtp-brevo.com"
-          password: "bskrXgIuw08Ljh9"
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
           subject: "Manual approval required for deployment"
           to: "rk173346@gmail.com"
           from: "9d698c001@smtp-brevo.com"
