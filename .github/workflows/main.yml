@@ -16,8 +16,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
+          username: "rk173346@gmail.com"
+          password: "Nike@2015"
           subject: "Manual approval required for deployment"
           to: "rajat.guptadhn@gmil.com"
           from: "rk173346@gmail.com"
