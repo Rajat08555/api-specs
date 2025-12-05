@@ -14,13 +14,13 @@ jobs:
       - name: Send email requesting approval
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: smtp.gmail.com
-          server_port: 465
+          server_address: smtp-relay.brevo.com
+          server_port: 587
           username: "rajat.guptadhn@gmail.com"
-          password: "ankur08555"
+          password: "Nike@2015"
           subject: "Manual approval required for deployment"
-          to: "rajat.guptadhn@gmil.com"
-          from: "rk173346@gmail.com"
+          to: "rk173346@gmail.com"
+          from: "rajat.guptadhn@gmail.com"
           body: "An Exchange API RAML has been checked in to the repository and requires validation from your end and final approval to proceed to actual BG publication. Please review and approve it."
 
   wait-for-approval:
