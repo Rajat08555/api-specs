@@ -16,8 +16,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: "rk173346@gmail.com"
-          password: "Nike@2015"
+          username: "rajat.guptadhn@gmail.com"
+          password: "ankur08555"
           subject: "Manual approval required for deployment"
           to: "rajat.guptadhn@gmil.com"
           from: "rk173346@gmail.com"
