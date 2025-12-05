@@ -1,7 +1,8 @@
 name: DevOps Manual Approval Pipeline for Exchange API RAMLs
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 jobs:
   notify-for-approval:
@@ -28,11 +29,29 @@ jobs:
     runs-on: ubuntu-latest
     needs: notify-for-approval
 
-    # This environment must be configured in the repo settings with required reviewers.
-    environment: 
-      name: development
-      url: https://example.com
-
     steps:
       - name: Continue after approval
         run: echo "Approval received. Continuing workflow..."
+  
+  publish-to-exchange:
+    name: Publish asset to Exchange
+    runs-on: ubuntu-latest
+    needs: notify-for-approval
+    steps:
+      - name: Call external REST API with Access token
+        run: |
+          curl -v \
+            -H 'Authorization: bearer 7e5986dc-769d-4c70-a9c3-2ec096ef622b' \
+            -H 'x-sync-publication: true' \
+            -F 'name=product-information-api' \
+            -F 'description=This is a Product Information API Spec' \
+            -F 'keywords=product-api, raml' \
+            -F 'properties.mainFile=product-information-api.raml' \
+            -F 'properties.apiVersion=v1' \
+            -F 'files.raml=@/file-path/training-american-flights-api-1.0.0-raml.zip' \
+            https://anypoint.mulesoft.com/exchange/api/v2/organizations/8a188a0e-4d0a-4dad-bad7-b4636f37f57b/assets/8a188a0e-4d0a-4dad-bad7-b4636f37f57b/product-information-api/1.0.0
+
+    # This environment must be configured in the repo settings with required reviewers.
+    environment: 
+      name: development
+      url: https://test-example.com
