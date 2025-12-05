@@ -19,8 +19,8 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: "Manual approval required for deployment"
-          to: "rk173346@gmail.com"
-          from: "rajat.guptadhn@gmil.com"
+          to: "rajat.guptadhn@gmil.com"
+          from: "rk173346@gmail.com"
           body: "An Exchange API RAML has been checked in to the repository and requires validation from your end and final approval to proceed to actual BG publication. Please review and approve it."
 
   wait-for-approval:
