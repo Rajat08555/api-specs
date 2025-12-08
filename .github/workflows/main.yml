@@ -48,7 +48,7 @@ jobs:
             -F 'keywords=product-api, raml' \
             -F 'properties.mainFile=product-information-api.raml' \
             -F 'properties.apiVersion=v1' \
-            -F 'files.raml=@/file-path/training-american-flights-api-1.0.0-raml.zip' \
+            -F 'files.raml=@product-information-api.raml' \
             https://anypoint.mulesoft.com/exchange/api/v2/organizations/8a188a0e-4d0a-4dad-bad7-b4636f37f57b/assets/8a188a0e-4d0a-4dad-bad7-b4636f37f57b/product-information-api/1.0.0
 
     # This environment must be configured in the repo settings with required reviewers.
