@@ -1,4 +1,4 @@
-name: DevOps Manual Approval Pipeline for Exchange API RAMLs
+name: DevOps Manual Approval Pipeline for Exchange API RAML
 
 on:
   push:
