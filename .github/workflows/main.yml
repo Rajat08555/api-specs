@@ -48,7 +48,7 @@ jobs:
             -F 'name=product-information-api' \
             -F 'description=This is a Product Information API Spec' \
             -F 'keywords=product-api, raml' \
-            -F 'type=RAML' \
+            -F 'type=rest-api' \
             -F 'properties.mainFile=product-information-api.raml' \
             -F 'properties.apiVersion=v1' \
             -F 'files.raml=@product-information-api.raml' \
