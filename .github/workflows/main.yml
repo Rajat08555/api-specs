@@ -37,6 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: notify-for-approval
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Call external REST API with Access token
         run: |
           curl -v \
