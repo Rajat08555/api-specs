@@ -41,7 +41,7 @@ jobs:
       - name: Call external REST API with Access token
         run: |
           curl -v \
-            -H 'Authorization: bearer 7e5986dc-769d-4c70-a9c3-2ec096ef622b' \
+            -H 'Authorization: bearer 4efe266d-a946-4453-a837-4552a9d21695' \
             -H 'x-sync-publication: true' \
             -F 'name=product-information-api' \
             -F 'description=This is a Product Information API Spec' \
