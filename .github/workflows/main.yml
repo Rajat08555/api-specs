@@ -1,4 +1,5 @@
 name: DevOps Manual Approval Pipeline for Exchange API RAML
+
 on:
   push:
     branches: [ "main" ]
